@@ -1,21 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GSAP Starter</title>
+    <title>Orbit Defense</title>
   </head>
   <body>
-    <main class="app">
-      <h1>GSAP Starter</h1>
-      <p>Animate the boxes below using GSAP.</p>
-      <div class="boxes">
-        <div class="box"></div>
-        <div class="box"></div>
-        <div class="box"></div>
-      </div>
-      <button id="replay">Replay animation</button>
-    </main>
+    <div id="app">
+      <header class="top-bar">
+        <h1>궤도 디펜스</h1>
+        <p class="subtitle">가운데를 지키고 가장자리를 도는 몬스터를 처치하세요!</p>
+      </header>
+
+      <section class="status-panel">
+        <div class="status-item">
+          <span class="label">웨이브</span>
+          <span id="wave" class="value">1</span>
+        </div>
+        <div class="status-item">
+          <span class="label">처치 수</span>
+          <span id="defeated" class="value">0</span>
+        </div>
+        <div class="status-item">
+          <span class="label">선택한 유닛</span>
+          <span id="selected-hero" class="value">없음</span>
+        </div>
+      </section>
+
+      <main class="game-area">
+        <div id="game-board">
+          <div id="center-zone" aria-label="유닛을 배치할 수 있는 중앙 구역"></div>
+          <div id="placed-hero" class="hero-slot" hidden></div>
+          <div id="monster-layer"></div>
+        </div>
+      </main>
+
+      <section class="roster-panel" aria-label="소환 가능한 캐릭터 목록">
+        <h2>캐릭터 선택</h2>
+        <div id="character-roster" class="roster"></div>
+        <p class="hint">캐릭터를 선택한 뒤 중앙 구역을 클릭해 배치하세요.</p>
+      </section>
+    </div>
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
