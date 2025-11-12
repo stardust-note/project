@@ -23,6 +23,10 @@
           <span id="defeated" class="value">0</span>
         </div>
         <div class="status-item">
+          <span class="label">보유 골드</span>
+          <span id="coins" class="value">0</span>
+        </div>
+        <div class="status-item">
           <span class="label">선택한 유닛</span>
           <span id="selected-hero" class="value">없음</span>
         </div>
@@ -30,16 +34,18 @@
 
       <main class="game-area">
         <div id="game-board">
-          <div id="center-zone" aria-label="유닛을 배치할 수 있는 중앙 구역"></div>
-          <div id="placed-hero" class="hero-slot" hidden></div>
+          <div id="center-zone" class="empty" aria-label="유닛을 배치할 수 있는 중앙 구역">
+            <div id="hero-formation" class="hero-formation" aria-live="polite"></div>
+          </div>
           <div id="monster-layer"></div>
         </div>
+        <div id="game-message" class="game-message" hidden></div>
       </main>
 
       <section class="roster-panel" aria-label="소환 가능한 캐릭터 목록">
         <h2>캐릭터 선택</h2>
         <div id="character-roster" class="roster"></div>
-        <p class="hint">캐릭터를 선택한 뒤 중앙 구역을 클릭해 배치하세요.</p>
+        <p class="hint">몬스터를 처치해 골드를 모으고, 캐릭터를 구매해 중앙 구역에 배치하세요.</p>
       </section>
     </div>
 
