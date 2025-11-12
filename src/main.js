@@ -82,17 +82,32 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateHeroCardStates() {
+    let selectionCleared = false;
+
     heroButtons.forEach((button, heroId) => {
       const hero = heroes.find((item) => item.id === heroId);
       if (!hero) return;
-      if (coins < hero.cost) {
+
+      const locked = coins < hero.cost;
+      if (locked) {
         button.classList.add('locked');
         button.setAttribute('aria-disabled', 'true');
+
+        if (selectedHero?.id === heroId) {
+          button.classList.remove('active');
+          selectionCleared = true;
+        }
       } else {
         button.classList.remove('locked');
         button.removeAttribute('aria-disabled');
       }
     });
+
+    if (selectionCleared) {
+      selectedHero = null;
+      updateSelectedHeroLabel();
+      centerZone.classList.remove('active');
+    }
   }
 
   function adjustCoins(delta) {
@@ -133,6 +148,11 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
 
     button.addEventListener('click', () => {
+      if (coins < hero.cost) {
+        showMessage(`골드가 부족합니다! (필요 골드: ${hero.cost}원)`);
+        return;
+      }
+
       selectedHero = hero;
       updateSelectedHeroLabel();
       clearActiveState();
