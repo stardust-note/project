@@ -48,6 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const monsters = [];
   const heroButtons = new Map();
 
+  const MAX_ACTIVE_HEROES = 10;
+
   let heroPositionsDirty = true;
   let messageTimeout = null;
 
@@ -81,17 +83,34 @@ document.addEventListener('DOMContentLoaded', () => {
     );
   }
 
+  function isFormationFull() {
+    return activeHeroes.length >= MAX_ACTIVE_HEROES;
+  }
+
   function updateHeroCardStates() {
     let selectionCleared = false;
+
+    const formationFull = isFormationFull();
 
     heroButtons.forEach((button, heroId) => {
       const hero = heroes.find((item) => item.id === heroId);
       if (!hero) return;
 
-      const locked = coins < hero.cost;
+      const insufficientCoins = coins < hero.cost;
+      const lockedByCapacity = formationFull;
+      const locked = insufficientCoins || lockedByCapacity;
       if (locked) {
         button.classList.add('locked');
         button.setAttribute('aria-disabled', 'true');
+
+        if (lockedByCapacity) {
+          button.setAttribute(
+            'title',
+            `중앙 구역에는 최대 ${MAX_ACTIVE_HEROES}명의 유닛만 배치할 수 있습니다.`
+          );
+        } else {
+          button.removeAttribute('title');
+        }
 
         if (selectedHero?.id === heroId) {
           button.classList.remove('active');
@@ -100,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         button.classList.remove('locked');
         button.removeAttribute('aria-disabled');
+        button.removeAttribute('title');
       }
     });
 
@@ -148,6 +168,12 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
 
     button.addEventListener('click', () => {
+      if (isFormationFull()) {
+        centerZone.classList.add('full');
+        showMessage(`중앙 구역에는 최대 ${MAX_ACTIVE_HEROES}명의 유닛만 배치할 수 있습니다.`);
+        return;
+      }
+
       if (coins < hero.cost) {
         showMessage(`골드가 부족합니다! (필요 골드: ${hero.cost}원)`);
         return;
@@ -191,6 +217,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function placeHero(hero) {
+    if (isFormationFull()) {
+      centerZone.classList.add('full');
+      showMessage(`중앙 구역에는 최대 ${MAX_ACTIVE_HEROES}명의 유닛만 배치할 수 있습니다.`);
+      return;
+    }
+
     const token = document.createElement('div');
     token.className = 'hero-token';
     token.innerHTML = `
@@ -213,6 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
     centerZone.classList.add('occupied');
     centerZone.classList.remove('empty');
     centerZone.classList.remove('active');
+    centerZone.classList.toggle('full', isFormationFull());
 
     heroPositionsDirty = true;
     window.requestAnimationFrame(() => {
