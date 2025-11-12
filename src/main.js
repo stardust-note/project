@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let heroPositionsDirty = true;
   let messageTimeout = null;
 
-  let coins = 0;
+  let coins = 20;
   let defeatedCount = 0;
   let totalSpawned = 0;
   let spawnDelay = 1200;
@@ -62,6 +62,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let monstersPerWave = calculateMonstersForWave(currentWave);
   let spawnedInWave = 0;
   let gameEnded = false;
+
+  coinsEl.textContent = coins.toString();
 
   function calculateMonstersForWave(wave) {
     const base = 10 + (wave - 1) * 6;
