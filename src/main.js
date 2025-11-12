@@ -48,6 +48,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const monsters = [];
   const heroButtons = new Map();
 
+  const MERGE_DAMAGE_MULTIPLIER = 1.65;
+  const selectedForMerge = [];
+
   const MAX_ACTIVE_HEROES = 10;
 
   let heroPositionsDirty = true;
@@ -205,6 +208,108 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function computeDamage(baseDamage, level) {
+    return Math.round(baseDamage * Math.pow(MERGE_DAMAGE_MULTIPLIER, level - 1));
+  }
+
+  function updateHeroTokenLabel(heroInstance) {
+    const label = heroInstance.element.querySelector('.hero-label');
+    if (label) {
+      label.textContent = `${heroInstance.name} · Lv.${heroInstance.level}`;
+    }
+
+    const damageBadge = heroInstance.element.querySelector('.hero-damage');
+    if (damageBadge) {
+      damageBadge.textContent = `⚔️ ${heroInstance.damage}`;
+    }
+  }
+
+  function clearMergeSelection() {
+    while (selectedForMerge.length) {
+      const heroInstance = selectedForMerge.pop();
+      heroInstance.element.classList.remove('selected');
+    }
+  }
+
+  function selectHeroForMerge(heroInstance) {
+    if (selectedForMerge.includes(heroInstance)) return;
+    heroInstance.element.classList.add('selected');
+    selectedForMerge.push(heroInstance);
+  }
+
+  function deselectHeroForMerge(heroInstance) {
+    const index = selectedForMerge.indexOf(heroInstance);
+    if (index === -1) return;
+    selectedForMerge.splice(index, 1);
+    heroInstance.element.classList.remove('selected');
+  }
+
+  function mergeHeroes(primary, consumed) {
+    const previousDamage = primary.damage;
+    primary.level += 1;
+    primary.damage = computeDamage(primary.baseDamage, primary.level);
+    updateHeroTokenLabel(primary);
+
+    const consumedIndex = activeHeroes.indexOf(consumed);
+    if (consumedIndex >= 0) {
+      activeHeroes.splice(consumedIndex, 1);
+    }
+
+    consumed.element.remove();
+
+    primary.element.classList.add('merged');
+    window.setTimeout(() => {
+      primary.element.classList.remove('merged');
+    }, 520);
+
+    heroPositionsDirty = true;
+    primary.attackTimer = 0;
+
+    showMessage(
+      `${primary.name}가 Lv.${primary.level}로 승급! 공격력 ${previousDamage} → ${primary.damage}`
+    );
+
+    centerZone.classList.toggle('full', isFormationFull());
+
+    clearMergeSelection();
+  }
+
+  function attemptMerge() {
+    if (selectedForMerge.length < 2) return;
+
+    const [first, second] = selectedForMerge;
+    if (first.id !== second.id) {
+      showMessage('같은 종류의 유닛만 합칠 수 있습니다.');
+      clearMergeSelection();
+      return;
+    }
+
+    if (first.level !== second.level) {
+      showMessage('같은 레벨의 유닛만 합칠 수 있습니다.');
+      clearMergeSelection();
+      return;
+    }
+
+    mergeHeroes(first, second);
+  }
+
+  function handleHeroTokenClick(heroInstance) {
+    if (selectedForMerge.includes(heroInstance)) {
+      deselectHeroForMerge(heroInstance);
+      return;
+    }
+
+    if (selectedForMerge.length >= 2) {
+      clearMergeSelection();
+    }
+
+    selectHeroForMerge(heroInstance);
+
+    if (selectedForMerge.length === 2) {
+      attemptMerge();
+    }
+  }
+
   function triggerHeroAttackEffect(element) {
     element.classList.add('attack');
     const pulse = document.createElement('span');
@@ -227,7 +332,8 @@ document.addEventListener('DOMContentLoaded', () => {
     token.className = 'hero-token';
     token.innerHTML = `
       <span class="emoji">${hero.emoji}</span>
-      <span class="hero-label">${hero.name}</span>
+      <span class="hero-label"></span>
+      <span class="hero-damage"></span>
     `;
 
     heroFormation.appendChild(token);
@@ -237,8 +343,18 @@ document.addEventListener('DOMContentLoaded', () => {
       element: token,
       attackTimer: 0,
       x: 0,
-      y: 0
+      y: 0,
+      level: 1,
+      baseDamage: hero.damage,
+      damage: hero.damage
     };
+
+    token.addEventListener('click', (event) => {
+      event.stopPropagation();
+      handleHeroTokenClick(heroInstance);
+    });
+
+    updateHeroTokenLabel(heroInstance);
 
     activeHeroes.push(heroInstance);
     adjustCoins(-hero.cost);
