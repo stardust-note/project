@@ -102,10 +102,10 @@ body {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: min(82%, 320px);
-  height: min(88%, 360px);
-  max-width: 360px;
-  max-height: 420px;
+  width: min(90%, 380px);
+  height: min(92%, 420px);
+  max-width: 420px;
+  max-height: 460px;
   border-radius: 28px;
   border: 3px dashed rgba(129, 140, 248, 0.6);
   transform: translate(-50%, -50%);
@@ -368,8 +368,10 @@ body {
   }
 
   #center-zone {
-    width: min(82%, 220px);
-    height: min(82%, 220px);
+    width: min(90%, 260px);
+    height: min(90%, 260px);
+    max-width: 280px;
+    max-height: 300px;
     padding: 18px;
   }
 
