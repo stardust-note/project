@@ -1,5 +1,3 @@
-import './style.css';
-
 const heroes = [
   {
     id: 'guardian',
